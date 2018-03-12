@@ -1,11 +1,21 @@
 #ifndef QRANCHALLENGE_H
 #define QRANCHALLENGE_H
 
-    unsigned char ** getChallengeProtectParams();
-    unsigned char ** getChallengeUnProtectParams();
-    unsigned char** executeParam();
-    unsigned char** execute(unsigned char** parametrosXml);
-    unsigned char** getParamNames();
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <unistd.h>
+    #include <sys/types.h>
+    #include <sys/wait.h>
+
+    typedef unsigned char UCHAR;
+    typedef UCHAR* PUCHAR;
+
+    PUCHAR*  getChallengeProtectParams();
+    PUCHAR*  getChallengeUnProtectParams();
+    PUCHAR*  executeParam();
+    PUCHAR execute(PUCHAR*  parametrosXml);
+    PUCHAR*  getParamNames();
     int getNParams();
 
 #endif

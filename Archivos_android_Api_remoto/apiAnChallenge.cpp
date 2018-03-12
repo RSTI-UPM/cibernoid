@@ -8,30 +8,16 @@
 //#https://forum.xda-developers.com/showthread.php?t=2362386 Install curl android
 
 #include "apiAnChallenge.h"
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-
-#include <random>
-#include <unistd.h>
-#include <string>
-#include <sstream>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <iostream>
-#include <algorithm>
-
-#include <stdlib.h>   
 
 using namespace std;
 using namespace rapidjson;
 
 
-unsigned char* challenge_params[5];
-unsigned char* code_params_names[5];
-unsigned char* key;
-unsigned char* s[4];   
-unsigned char* environment_params[9];
+PUCHAR  challenge_params[5];
+PUCHAR  code_params_names[5];
+PUCHAR  key;
+PUCHAR  s[4];   
+PUCHAR  environment_params[9];
 
 
 
@@ -45,7 +31,7 @@ char url[]="http://192.168.1.186:8084/ServerCiberNoid_1/webresources/claves";
 
 
 //JSON
-string paramsToJson(unsigned char* idFile, unsigned char* idUser, unsigned char* grupo_boolean,unsigned char* operador, unsigned char* lat, unsigned char* lon, unsigned char* hora, unsigned char* dateMask, unsigned char* fecha, unsigned char* timeMask, unsigned char* wifis){
+string paramsToJson(PUCHAR  idFile, PUCHAR  idUser, PUCHAR  grupo_boolean,PUCHAR  operador, PUCHAR  lat, PUCHAR  lon, PUCHAR  hora, PUCHAR  dateMask, PUCHAR  fecha, PUCHAR  timeMask, PUCHAR  wifis){
     // document is the root of a json message
     rapidjson::Document document;
     // define the document as an object rather than an array
@@ -100,11 +86,11 @@ string paramsToJson(unsigned char* idFile, unsigned char* idUser, unsigned char*
 
 
 
-unsigned char* get_idUser(){
+PUCHAR  get_idUser(){
     FILE *fp;
     char var[40];
     int varInt=0;
-    unsigned char* idUser;
+    PUCHAR  idUser;
     fp = popen("whoami", "r");
     while (fgets(var, sizeof(var), fp) != NULL) {
 	     for (int i = 0; i < 40; ++i){    
@@ -115,17 +101,17 @@ unsigned char* get_idUser(){
     pclose(fp);
     std::ostringstream stream_idUser;
   	stream_idUser << varInt;
-  	idUser = (unsigned char*)malloc(stream_idUser.str().length()+1);
+  	idUser = (PUCHAR )malloc(stream_idUser.str().length()+1);
   	strcpy((char*)idUser, stream_idUser.str().c_str());
     return idUser;
 }
 
 
-unsigned char* get_wifi(){
+PUCHAR  get_wifi(){
     FILE *fp;
     char var[40];
     int m = 1;
-    unsigned char* list;
+    PUCHAR  list;
     int l=0;
     int i;    
     fp = popen("dumpsys wifi | grep -i '[0-9A-F]\\{2\\}\\(:[0-9A-F]\\{2\\}\\)\\{5\\}'| grep -|awk '{print$5\",\"$2\",\"$3}'", "r");
@@ -146,24 +132,24 @@ unsigned char* get_wifi(){
   }
 
     pclose(fp); 
-    list = (unsigned char*)malloc(myString.length()+1);
+    list = (PUCHAR )malloc(myString.length()+1);
     strcpy((char*)list,myString.c_str());
     return list;
 }
 
 
-unsigned char* get_lat(){
+PUCHAR  get_lat(){
     FILE* fp;
-    unsigned char* gps_lat;
+    PUCHAR  gps_lat;
     char var[10];
     //fp = popen("dumpsys location|grep gps\ Location|awk '{print$3}'|cut -f 1 -d\",\"", "r");
     fp = popen("dumpsys location|grep Latitude | head -n 1 | awk '{print$1}'|cut -f 2 -d\"=\"", "r");
 
     while (fgets(var, sizeof(var), fp) != NULL) {  
-        //gps_lat = (unsigned char*)var;
+        //gps_lat = (PUCHAR )var;
         std::ostringstream stream_gps;
         stream_gps << var;
-        gps_lat = (unsigned char*)malloc(stream_gps.str().length()+1);
+        gps_lat = (PUCHAR )malloc(stream_gps.str().length()+1);
         strcpy((char*)gps_lat, stream_gps.str().c_str());
         //printf("lat %s", var);
         break;
@@ -174,15 +160,15 @@ unsigned char* get_lat(){
     return gps_lat;
 }
 
-unsigned char* get_lon(){
+PUCHAR  get_lon(){
     FILE* fp;
-    unsigned char* gps_lon;
+    PUCHAR  gps_lon;
     char var[10];
     fp = popen("dumpsys location|grep Latitude | head -n 1 | awk '{print$2}'|cut -f 2 -d\"=\"", "r");
     while (fgets(var, sizeof(var), fp) != NULL) {  
         std::ostringstream stream_gps;
         stream_gps << var;
-        gps_lon = (unsigned char*)malloc(stream_gps.str().length()+1);
+        gps_lon = (PUCHAR )malloc(stream_gps.str().length()+1);
         strcpy((char*)gps_lon, stream_gps.str().c_str());
 
         break;
@@ -193,11 +179,11 @@ unsigned char* get_lon(){
 }
 
 
-unsigned char* get_operador(){	
+PUCHAR  get_operador(){	
   FILE *fp;
   char var[40];
   int i=0;
-  unsigned char* operador;
+  PUCHAR  operador;
   fp = popen("dumpsys telephony.registry|grep mServiceState|awk '{print$3}'", "r");
   while (fgets(var, sizeof(var), fp) != NULL) { 
          //printf(" %s", var);
@@ -209,7 +195,7 @@ unsigned char* get_operador(){
             stream_operador << var[i];            
             
         }  
-        operador = (unsigned char*)malloc(stream_operador.str().length()+1);
+        operador = (PUCHAR )malloc(stream_operador.str().length()+1);
         strcpy((char*)operador, stream_operador.str().c_str());
 
   }
@@ -218,7 +204,7 @@ unsigned char* get_operador(){
 }
 
 
-unsigned char* create_fileID(){
+PUCHAR  create_fileID(){
 	int min = 0;
 	int max = 32727;
 
@@ -227,21 +213,21 @@ unsigned char* create_fileID(){
 	std::uniform_int_distribution<int> uni(min,max); 
 	auto random_integer = uni(rng);
 	
-    unsigned char* s_rand;
+    PUCHAR  s_rand;
     std::stringstream stream_rand;
   	stream_rand << random_integer;
-  	s_rand = (unsigned char*)malloc(stream_rand.str().length()+1);
+  	s_rand = (PUCHAR )malloc(stream_rand.str().length()+1);
   	strcpy((char*)s_rand, stream_rand.str().c_str());
     return s_rand;
 
 }
 
-unsigned char* get_creationDate(){
+PUCHAR  get_creationDate(){
   
 	FILE *fp;
     char var[11];
     int i;
-    unsigned char* date;
+    PUCHAR  date;
     fp = popen("date +\"%Y-%m-%d\"", "r");
     while (fgets(var, sizeof(var), fp) != NULL) {  
         
@@ -255,7 +241,7 @@ unsigned char* get_creationDate(){
             
         }  
 
-        date = (unsigned char*)malloc(stream_date.str().length()+1);
+        date = (PUCHAR )malloc(stream_date.str().length()+1);
         strcpy((char*)date, stream_date.str().c_str());        
         break;
      }
@@ -264,12 +250,12 @@ unsigned char* get_creationDate(){
 	
 }
 
-unsigned char* get_curl(unsigned char* idFile, unsigned char* idUser, unsigned char* group,unsigned char* operador, unsigned char* lat, unsigned char* lon, unsigned char* hora, unsigned char* dateMask, unsigned char* fecha, unsigned char* timeMask, unsigned char* wifis){
+PUCHAR  get_curl(PUCHAR  idFile, PUCHAR  idUser, PUCHAR  group,PUCHAR  operador, PUCHAR  lat, PUCHAR  lon, PUCHAR  hora, PUCHAR  dateMask, PUCHAR  fecha, PUCHAR  timeMask, PUCHAR  wifis){
   
     FILE *fp;
     char var[700];
     //char list[800];
-    unsigned char* s_curl;
+    PUCHAR  s_curl;
     int i;
     int l=0;
     printf("F %s\n", (const char*)idFile);
@@ -294,14 +280,14 @@ unsigned char* get_curl(unsigned char* idFile, unsigned char* idUser, unsigned c
     if ( fp == NULL ) 
     {
       printf("error");
-      return  (unsigned char*)"error";
+      return  (PUCHAR )"error";
     }       
         while (fgets(var, sizeof(var), fp) != NULL) { 
           printf(" %s\n",var);          
           std::stringstream stream_var;
           stream_var << var;
 
-          s_curl = (unsigned char*)malloc(stream_var.str().length()+1);
+          s_curl = (PUCHAR )malloc(stream_var.str().length()+1);
           strcpy((char*)s_curl, stream_var.str().c_str());
     
         }   
@@ -309,7 +295,7 @@ unsigned char* get_curl(unsigned char* idFile, unsigned char* idUser, unsigned c
   
 }
 
-unsigned char* getfield(char* line, int num){
+PUCHAR  getfield(char* line, int num){
 		std::string myString;	
         std::stringstream ss;
         int i;
@@ -326,14 +312,14 @@ unsigned char* getfield(char* line, int num){
             }    
         }      
         myString += ss.str().c_str();                
-        unsigned char* field = (unsigned char*)malloc(myString.length()+1);
+        PUCHAR  field = (PUCHAR )malloc(myString.length()+1);
     	strcpy((char*)field,myString.c_str()); 
     	printf("%s\n", field);
     	return  field;          
  }
      
 
-unsigned char** get_app(){      
+PUCHAR*  get_app(){      
             
             FILE *fp;
             char buff[40];
@@ -352,23 +338,23 @@ unsigned char** get_app(){
             ret = remove(filename);            
 
             if(ret == 0) {
-              printf("File deleted successfully\n");            
+              //printf("File deleted successfully\n");            
             }else{
               printf("Error: unable to delete the files\n");
             }           
             
             //group
-            s[0] = (unsigned char*)malloc(sizeof(getfield(buff,1))+1);
+            s[0] = (PUCHAR )malloc(sizeof(getfield(buff,1))+1);
             s[0]=getfield(buff,1);                       
             //timeMask
-            s[1] = (unsigned char*)malloc(sizeof(getfield(buff,2))+1);
+            s[1] = (PUCHAR )malloc(sizeof(getfield(buff,2))+1);
             s[1]=getfield(buff,2);
             //dateMask
-            s[2] = (unsigned char*)malloc(sizeof(getfield(buff,3))+1);
+            s[2] = (PUCHAR )malloc(sizeof(getfield(buff,3))+1);
             s[2]=getfield(buff,3);
             //startWorday
-            //s[3] = (unsigned char*)malloc(sizeof(getfield(buff,4))+1);
-            //s[3]=getfield(buff,4);            
+            s[3] = (PUCHAR )malloc(sizeof(getfield(buff,4))+1);
+            s[3]=getfield(buff,4);                       
                   
             return s;
     }
@@ -384,17 +370,12 @@ int existsFile(char* filename) {
         }
 }
 
-unsigned char* get_startWorkday(){
-	unsigned char* date= (unsigned char*)"08:00";
-    return date;	
-}
 
 
 
-
-unsigned char**  getChallengeProtectParams(){
+PUCHAR*   getChallengeProtectParams(){
   FILE *f; 
-  unsigned char* date;
+  PUCHAR  date;
   f = popen("svc wifi enable", "r");
   pclose(f);
   int pid;
@@ -420,7 +401,7 @@ unsigned char**  getChallengeProtectParams(){
           pclose(fp);       
           
   }
-  unsigned char** app=get_app();
+  PUCHAR*  app=get_app();
   //idUser
   environment_params[0] = get_idUser();  
   //group
@@ -446,9 +427,9 @@ unsigned char**  getChallengeProtectParams(){
 
 }
 
-unsigned char** getChallengeUnProtectParams(){
+PUCHAR*  getChallengeUnProtectParams(){
   FILE *f; 
-  unsigned char* date;
+  PUCHAR  date;
   f = popen("svc wifi enable", "r");
   pclose(f);
   
@@ -471,7 +452,7 @@ unsigned char** getChallengeUnProtectParams(){
 
 
 
-unsigned char** executeParam(){
+PUCHAR*  executeParam(){
     challenge_params[1] = create_fileID();   
     getChallengeProtectParams();
     //get_curl(idFile,idUser,group,operador,lat,lon,startWorkday,dateMask,creationDate,timeMask,wifi)
@@ -496,13 +477,13 @@ unsigned char** executeParam(){
     c += document["claveFecha"].GetString();
     c += document["claveWifi"].GetString(); 
 
-    challenge_params[0] = (unsigned char*)malloc(c.length()+1);
+    challenge_params[0] = (PUCHAR )malloc(c.length()+1);
     strcpy((char*)challenge_params[0],c.c_str());
     challenge_params[2] = environment_params[1]; //group
     challenge_params[3] = environment_params[6]; //dateMask
     challenge_params[4] = environment_params[7]; //creationDate
     challenge_params[5] = environment_params[8]; //timeMask
-    challenge_params[6] = environment_params[5];
+    challenge_params[6] = environment_params[5]; //startWorkday
 
     printf("Clave %s\n", challenge_params[0]);
     printf("Clave %s\n", challenge_params[1]);
@@ -518,7 +499,7 @@ unsigned char** executeParam(){
     
 }
 
-unsigned char* execute(unsigned char** parametrosXml){  	
+PUCHAR  execute(PUCHAR*  parametrosXml){  	
 
   	/// Calling the internal function
   	getChallengeUnProtectParams();
@@ -543,14 +524,14 @@ unsigned char* execute(unsigned char** parametrosXml){
     c += document["claveHora"].GetString();
     c += document["claveFecha"].GetString();
     c += document["claveWifi"].GetString();
-    key = (unsigned char*)malloc(c.length()+1);
+    key = (PUCHAR )malloc(c.length()+1);
     strcpy((char*)key,c.c_str());
     printf("%s\n", key);
     return key;
 
 }
 
-unsigned char** getParamNames(){
+PUCHAR*  getParamNames(){
   string fileID= "fileID";
   string timeMask="timeMask";
   string dateMask="dateMask";
@@ -586,7 +567,7 @@ unsigned char** getParamNames(){
     			break;
 
     	}
-  		code_params_names[i] = (unsigned char*)malloc(name.length()+1);
+  		code_params_names[i] = (PUCHAR )malloc(name.length()+1);
   		strcpy((char*)code_params_names[i], name.c_str());
     }
  

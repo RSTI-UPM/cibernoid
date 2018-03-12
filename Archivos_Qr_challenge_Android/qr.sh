@@ -7,5 +7,5 @@ export CXX=arm-linux-androideabi-gcc
 
 $CXX -fPIC -c -o pruebas_SO.o qrAnChallenge.c																																										
 $CXX -Wall -shared -fPIC -o libQr_Android_challenge.so pruebas_SO.o qrAnChallenge.h 
-$CXX -pie -o "pruebas_ejecutable" main.c  -L. -lQr_Android_challenge
+$CXX -pie -o "qr" main.c  -L. -lQr_Android_challenge
 

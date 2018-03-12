@@ -1,15 +1,10 @@
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include "qrAnChallenge.h"
 
 unsigned char buffer[BUFSIZ];
-unsigned char* string;
-unsigned char* pa_challenge_params[1];
-unsigned char* pa_challenge_subkey[1];
+PUCHAR string;
+PUCHAR key;
+PUCHAR pa_challenge_params[1];
+PUCHAR pa_challenge_subkey[1];
 size_t len_string;
 int i;
 char filename[] = "/data/data/cibernoid.multimedia.qr_code_scanner/files/challenge_key.txt";
@@ -26,7 +21,7 @@ int existsFile(char* filename) {
 }
 
 
-unsigned char ** getChallengeProtectParams(){
+PUCHAR* getChallengeProtectParams(){
     int pid;
     pid = fork();
     switch(pid)
@@ -60,7 +55,7 @@ unsigned char ** getChallengeProtectParams(){
             } else {
               printf("Error: unable to delete the file\n");
             }
-            pa_challenge_params[0] = (unsigned char*)malloc(strlen(buff)+1);
+            pa_challenge_params[0] = (PUCHAR)malloc(strlen(buff)+1);
             strcpy(pa_challenge_params[0], buff); 
 
             //printf("Scanned string: %s\n", pa_challenge_params[0]);
@@ -69,7 +64,7 @@ unsigned char ** getChallengeProtectParams(){
     }
 }
 
-unsigned char ** getChallengeUnProtectParams(){
+PUCHAR* getChallengeUnProtectParams(){
     int pid;
     pid = fork();
     switch(pid)
@@ -103,7 +98,7 @@ unsigned char ** getChallengeUnProtectParams(){
             } else {
               printf("Error: unable to delete the file\n");
             }
-            pa_challenge_params[0] = (unsigned char*)malloc(strlen(buff)+1);
+            pa_challenge_params[0] = (PUCHAR)malloc(strlen(buff)+1);
             strcpy(pa_challenge_params[0], buff); 
 
             //printf("Scanned string: %s\n", pa_challenge_params[0]);
@@ -112,8 +107,7 @@ unsigned char ** getChallengeUnProtectParams(){
     }
 }
 
-unsigned char** executeParam()
-{   
+PUCHAR* executeParam(){   
     /// Calling the internal function and obtaining the string decoded
     string = getChallengeProtectParams()[0];
 
@@ -128,7 +122,7 @@ unsigned char** executeParam()
         printf("%02x", string[i]);
     putchar('\n');*/
 
-    pa_challenge_subkey[0] = (unsigned char*)malloc(len_string);
+    pa_challenge_subkey[0] = (PUCHAR)malloc(len_string);
     
     strcpy(pa_challenge_subkey[0], string); 
      
@@ -136,7 +130,7 @@ unsigned char** executeParam()
     return pa_challenge_subkey;
 }
 
-unsigned char** execute(unsigned char** parametrosXml){
+PUCHAR execute(PUCHAR* parametrosXml){
 
     /// Calling the internal function and obtaining the string decoded
     string = getChallengeProtectParams()[0];
@@ -144,15 +138,15 @@ unsigned char** execute(unsigned char** parametrosXml){
     
     len_string = strlen(string);
     
-    pa_challenge_subkey[0] = (unsigned char*)malloc(len_string);
-    strcpy(pa_challenge_subkey[0], string); 
+    key = (PUCHAR)malloc(len_string);
+    strcpy(key, string); 
     //printf("Scanned string executeparam: %s\n", pa_challenge_subkey[0]);
-    return pa_challenge_subkey;
+    return key;
     
 
 }
 
-unsigned char** getParamNames(){
+PUCHAR* getParamNames(){
     return NULL;
 }
 

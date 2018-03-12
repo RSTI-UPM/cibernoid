@@ -6,7 +6,7 @@ int main(int argc, char** argv)
 {
   //printf("Return (executeParam): %s\n", executeParam()[0]);
   //printf("Return (executeParam): %s\n", executeParam()[1]);
-  unsigned char* key = execute(executeParam());
+  PUCHAR key = execute(executeParam());
 
 
   //printf("return (execute): %s\n", execute(executeParam()));
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 /*int  main(int argc, char **argv){
   printf("Empezando");
 	
-	unsigned char** hola =executeParam();
+	PUCHAR* hola =executeParam();
   	printf("return (executeParam): %s\n", hola[0]);
   	printf("c1: %s\n", hola[1]);
   	printf("c2: %s\n", hola[2]);

@@ -1,19 +1,11 @@
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/opencv.hpp>
-
-#include <unistd.h>
-//#include <iostream>
-#include <sstream>
-#include <stdlib.h> 
-#include <sys/wait.h>
+#include "volAnchallenge.h"
 
 using namespace std;
 using namespace cv;
 
-unsigned char* challenge_params[2];
-unsigned char* key;
-unsigned char* code_params_names[1];
+PUCHAR challenge_params[2];
+PUCHAR key;
+PUCHAR code_params_names[1];
 char photoname[] = "/sdcard/photo.jpg";
 double minimo = 10;
 
@@ -30,7 +22,7 @@ int existsFile(char* filename) {
 
 
 
-unsigned char ** getChallengeProtectParams(){
+PUCHAR* getChallengeProtectParams(){
 
   int pid;
   pid = fork();
@@ -56,7 +48,7 @@ unsigned char ** getChallengeProtectParams(){
   }
 }
 
-unsigned char ** getChallengeUnProtectParams(){
+PUCHAR* getChallengeUnProtectParams(){
   
   int pid;
   pid = fork();
@@ -84,7 +76,7 @@ unsigned char ** getChallengeUnProtectParams(){
 
 
 
-unsigned char ** executeParam(){
+PUCHAR* executeParam(){
 
   /// Calling the internal function
   getChallengeProtectParams();
@@ -221,14 +213,14 @@ unsigned char ** executeParam(){
    
   
   std::string subkey = stream_param.str();
-  challenge_params[0] = (unsigned char*)malloc(subkey.length()+1);
+  challenge_params[0] = (PUCHAR)malloc(subkey.length()+1);
   strcpy((char*)challenge_params[0], subkey.c_str());
 
 
   return challenge_params;
 }
 
-unsigned char* execute(unsigned char** parametrosXml){
+PUCHAR execute(PUCHAR* parametrosXml){
 
  
 
@@ -373,13 +365,13 @@ unsigned char* execute(unsigned char** parametrosXml){
   } 
 
   std::string sub_key = stream_key.str();
-  key = (unsigned char*)malloc(sub_key.length()+1);
+  key = (PUCHAR)malloc(sub_key.length()+1);
   strcpy((char*)key, sub_key.c_str());
   return key;
   }
 
 
-unsigned char ** getParamNames(){
+PUCHAR* getParamNames(){
   
   return NULL;
 }

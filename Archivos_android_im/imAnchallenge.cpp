@@ -1,14 +1,11 @@
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
-#include <unistd.h>
-#include <sys/wait.h>
+#include "imAnchallenge.h"
 
 using namespace std;
 using namespace cv;
 
-unsigned char* challenge_params[2];
-unsigned char* key;
-unsigned char* code_params_names[1];
+PUCHAR challenge_params[2];
+PUCHAR key;
+PUCHAR code_params_names[1];
 char photoname[] = "/sdcard/photo.jpg";
 double correlation_base = 0.5;
 
@@ -35,7 +32,7 @@ int existsFile(char* filename) {
         }
 }
 
-unsigned char ** getChallengeProtectParams(){
+PUCHAR* getChallengeProtectParams(){
 
   int pid;
   pid = fork();
@@ -61,7 +58,7 @@ unsigned char ** getChallengeProtectParams(){
   }
 }
 
-unsigned char ** getChallengeUnProtectParams(){
+PUCHAR* getChallengeUnProtectParams(){
   
   int pid;
   pid = fork();
@@ -90,7 +87,7 @@ unsigned char ** getChallengeUnProtectParams(){
 
 
 
-unsigned char ** executeParam(){
+PUCHAR* executeParam(){
 
   /// Calling the internal function
   getChallengeProtectParams();
@@ -109,13 +106,13 @@ unsigned char ** executeParam(){
 
   
 
-  /*int ret = remove(photoname);
+  int ret = remove(photoname);
   if(ret == 0) {
-      printf("File deleted successfully\n");
+      // printf("File deleted successfully\n");
    }else{
       printf("Error: unable to delete the file\n");
    }
-	*/
+	
 
   /// Convert the image to HSV format
   cvtColor( src_base, hsv_base, COLOR_BGR2HSV );
@@ -132,14 +129,14 @@ unsigned char ** executeParam(){
   strs << max;
  
   string subkey = strs.str();
-  challenge_params[0] = (unsigned char*)malloc(subkey.length()+1);
+  challenge_params[0] = (PUCHAR)malloc(subkey.length()+1);
   strcpy((char*)challenge_params[0], subkey.c_str());
 
   /// We pass the histogram as code parameters
   FileStorage fs(".xml", FileStorage::WRITE + FileStorage::MEMORY);
   fs << "mymatrix" << hist_base;
   string buf = fs.releaseAndGetString();
-  challenge_params[1] = (unsigned char*)malloc(buf.length()+1);
+  challenge_params[1] = (PUCHAR)malloc(buf.length()+1);
   strcpy((char*)challenge_params[1], buf.c_str()); 
   
 
@@ -149,7 +146,7 @@ unsigned char ** executeParam(){
   return challenge_params;
 }
 
-unsigned char* execute(unsigned char** parametrosXml){
+PUCHAR execute(PUCHAR* parametrosXml){
 
   Mat src, hsv, hist, hist_base;
 
@@ -201,13 +198,13 @@ unsigned char* execute(unsigned char** parametrosXml){
 
   if (correlation > 0.5){
 
-  	key = (unsigned char*)malloc(subkey.length()+1);
+  	key = (PUCHAR)malloc(subkey.length()+1);
     strcpy((char*)key, subkey.c_str());
   	
   }
   else{
   	string false_subkey = "Incorrect";
-    key = (unsigned char*)malloc(false_subkey.length()+1);
+    key = (PUCHAR)malloc(false_subkey.length()+1);
     strcpy((char*)key, false_subkey.c_str());	 
 
   }
@@ -218,7 +215,7 @@ unsigned char* execute(unsigned char** parametrosXml){
   std::stringstream stream_key;
   stream_key << correlation ;
   string sub_key = stream_key.str();
-  key = (unsigned char*)malloc(sub_key.length()+1);
+  key = (PUCHAR)malloc(sub_key.length()+1);
   strcpy((char*)key, sub_key.c_str());
   */
   //execl("/system/bin/sh", "sh", "-c", "am force-stop cibernoid.multimedia.camara", (char *)NULL);
@@ -228,10 +225,10 @@ unsigned char* execute(unsigned char** parametrosXml){
   }
 
 
-unsigned char ** getParamNames(){
+PUCHAR* getParamNames(){
   
   string name = "histograma";
-  code_params_names[0] = (unsigned char*)malloc(name.length()+1);
+  code_params_names[0] = (PUCHAR)malloc(name.length()+1);
   strcpy((char*)code_params_names[0], name.c_str());
 
   return code_params_names;

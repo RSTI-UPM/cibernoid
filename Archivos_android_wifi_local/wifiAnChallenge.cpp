@@ -1,29 +1,20 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <iostream>
-#include <sstream>
-#include <vector>
 #include "wifiAnChallenge.h"
 
 using namespace std;
 
 
-unsigned char* pa_challenge_params[1];
-unsigned char* pa_challenge_subkey[2];
-unsigned char* key;
+PUCHAR pa_challenge_params[1];
+PUCHAR pa_challenge_subkey[2];
+PUCHAR key;
 
 
 
-unsigned char ** getChallengeProtectParams(){
+PUCHAR* getChallengeProtectParams(){
     FILE *fp;
     char var[40];
     int m = 1;
-    unsigned char* list;
+    PUCHAR list;
     int l=0;
     int i;    
     fp = popen("dumpsys wifi | grep -i '[0-9A-F]\\{2\\}\\(:[0-9A-F]\\{2\\}\\)\\{5\\}'| grep -|awk '{print$5\",\"$2\",\"$3}'", "r");
@@ -44,19 +35,19 @@ unsigned char ** getChallengeProtectParams(){
     }
     pclose(fp); 
     printf("%s\n", myString.c_str());
-    pa_challenge_params[0] = (unsigned char*)malloc(myString.length()+1);
+    pa_challenge_params[0] = (PUCHAR)malloc(myString.length()+1);
     strcpy((char*)pa_challenge_params[0],myString.c_str());    
 
     return pa_challenge_params;
     
 }
 
-unsigned char ** getChallengeUnProtectParams(){
+PUCHAR* getChallengeUnProtectParams(){
         
     FILE *fp;
     char var[40];
     int m = 1;
-    unsigned char* list;
+    PUCHAR list;
     int l=0;
     int i;    
     fp = popen("dumpsys wifi | grep -i '[0-9A-F]\\{2\\}\\(:[0-9A-F]\\{2\\}\\)\\{5\\}'| grep -|awk '{print$5\",\"$2\",\"$3}'", "r");
@@ -77,7 +68,7 @@ unsigned char ** getChallengeUnProtectParams(){
     }
     pclose(fp); 
     printf("getChallengeUnProtectParams %s\n", myString.c_str());
-    pa_challenge_params[0] = (unsigned char*)malloc(myString.length()+1);
+    pa_challenge_params[0] = (PUCHAR)malloc(myString.length()+1);
     strcpy((char*)pa_challenge_params[0],myString.c_str());    
     return pa_challenge_params;
     
@@ -112,9 +103,12 @@ int asciiToInt(int s){
 
 }
 
-unsigned char** executeParam()
+PUCHAR* executeParam()
 {   
-
+    FILE *f; 
+    PUCHAR  date;
+    f = popen("svc wifi enable", "r");
+    pclose(f);
     
     string wifis((const char*)getChallengeProtectParams()[0]);
     int canales = 1;
@@ -171,7 +165,7 @@ unsigned char** executeParam()
                 
                
             }
-            //55 (Código ASCII 7, es decir menos de -70dB de potencia)
+            //55 (Código ASCII 7, es decir menos de -70dBm de potencia)
             if (varInt2 <= 55) {
                 pa_challenge_params_s += redString[0] + ",";                
                 canales += varInt1;
@@ -193,20 +187,25 @@ unsigned char** executeParam()
     printf("%s \n",pa_challenge_params_s.c_str());
     std::stringstream stream;
     stream << canales << minimo << maximo;
-    pa_challenge_subkey[0] = (unsigned char*)malloc(stream.str().length()+1);
+    pa_challenge_subkey[0] = (PUCHAR)malloc(stream.str().length()+1);
     strcpy((char*)pa_challenge_subkey[0], stream.str().c_str());
     printf("Termine %s\n",stream.str().c_str());
 
-   // pa_challenge_subkey[0] = (unsigned char*)malloc(clave.length()+1);
+   // pa_challenge_subkey[0] = (PUCHAR)malloc(clave.length()+1);
     //strcpy((char*)pa_challenge_subkey[0],clave.c_str());
-    pa_challenge_subkey[1] = (unsigned char*)malloc(pa_challenge_params_s.length()+1);
+    pa_challenge_subkey[1] = (PUCHAR)malloc(pa_challenge_params_s.length()+1);
     strcpy((char*)pa_challenge_subkey[1],pa_challenge_params_s.c_str());
      
     //printf("Scanned string execute: %s\n", pa_challenge_subkey[0]);
     return pa_challenge_subkey;
 }
 
-unsigned char* execute(unsigned char** parametrosXml){
+PUCHAR execute(PUCHAR* parametrosXml){
+
+    FILE *f; 
+    PUCHAR  date;
+    f = popen("svc wifi enable", "r");
+    pclose(f);
 
     string wifis((const char*)getChallengeProtectParams()[0]);
     std::string parametrosXMLString((const char*)parametrosXml[1]);
@@ -270,7 +269,7 @@ unsigned char* execute(unsigned char** parametrosXml){
                     }
                     
 
-                    //57 (Código ASCII 9, es decir menos de -90dB de potencia)
+                    //57 (Código ASCII 9, es decir menos de -90dBm de potencia)
                     if (varInt2 <= 57) {
                         pa_challenge_params_s += redString[0] + ",";                
                         canales += varInt1;                       
@@ -290,7 +289,7 @@ unsigned char* execute(unsigned char** parametrosXml){
    
     std::stringstream stream_k;
     stream_k << canales << minimo << maximo;
-    key = (unsigned char*)malloc(stream_k.str().length()+1);
+    key = (PUCHAR)malloc(stream_k.str().length()+1);
     strcpy((char*)key, stream_k.str().c_str());
     printf("Termine %s\n",stream_k.str().c_str());
 
@@ -301,7 +300,7 @@ unsigned char* execute(unsigned char** parametrosXml){
 
 
 
-unsigned char** getParamNames(){
+PUCHAR* getParamNames(){
     return NULL;
 }
 
