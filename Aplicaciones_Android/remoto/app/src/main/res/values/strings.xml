@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">"api"</string>
+    <string-array name="horas_trabajo">
+        <item>     1 hora </item>
+        <item>     2 horas </item>
+        <item>     4 horas </item>
+        <item>     8 horas </item>
+    </string-array>
+    <string-array name="duracion_fichero">
+        <item>     2 semanas </item>
+        <item>     1 mes </item>
+        <item>     2 meses </item>
+        <item>     4 meses </item>
+    </string-array>
+</resources>
+
