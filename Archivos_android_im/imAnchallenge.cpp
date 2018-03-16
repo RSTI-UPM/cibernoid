@@ -96,19 +96,11 @@ PUCHAR* executeParam(){
 
   /// Path to the image file (/storage/emulated/0/pic.jpg)
   src_base = imread( photoname, 1 );
-
-  FILE* fp;
-  char command[80];
-  snprintf(command, 80,"rm %s", photoname);
-  printf("%s\n", command);
-  fp = popen(command, "r");
-  pclose(fp); 
-
   
 
   int ret = remove(photoname);
   if(ret == 0) {
-      // printf("File deleted successfully\n");
+      printf("File deleted successfully\n");
    }else{
       printf("Error: unable to delete the file\n");
    }
@@ -125,8 +117,9 @@ PUCHAR* executeParam(){
   double min, max;
   cv::minMaxLoc(hist_base, &min, &max);
 
-  std::ostringstream strs;
-  strs << max;
+  cv::Size size = hist_base.size();  
+  std::stringstream strs;
+  strs << max << min << size.width << size.height;
  
   string subkey = strs.str();
   challenge_params[0] = (PUCHAR)malloc(subkey.length()+1);
@@ -163,28 +156,23 @@ PUCHAR execute(PUCHAR* parametrosXml){
   /// Path to the image file
   src = imread( photoname, 1 );
 
-  FILE* fp;
-  char command[80];
-  snprintf(command, 80,"rm %s", photoname);
-    
-  fp = popen(command, "r");
-  pclose(fp);  
 
-/*
   int ret = remove(photoname);
   if(ret == 0) {
       printf("File deleted successfully\n");
    }else{
       printf("Error: unable to delete the file\n");
    }
-*/
+
 
   double min, max;
   cv::minMaxLoc(hist_base, &min, &max);
 
-  /// Generate the subkey (hash of the max value)
-  std::ostringstream strs;
-  strs << max;
+  /// Generate the subkey (the max and min value)
+
+  cv::Size size = hist_base.size();  
+  std::stringstream strs;
+  strs << max << min << size.width << size.height;
   string subkey = strs.str();
   /// Convert the image to HSV format
   cvtColor( src, hsv, COLOR_BGR2HSV );

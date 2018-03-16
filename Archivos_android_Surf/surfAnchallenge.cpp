@@ -1,18 +1,4 @@
 #include "surfAnchallenge.h"
-#include <stdio.h>
-//#include <sstream>
-#include <unistd.h>
-#include <sys/wait.h>
-
-  #include <iostream>
-#include <stdexcept>
-  #include <vector>
-  #include "opencv2/core.hpp"
- //#include "opencv2/imgproc.hpp"
-  #include "opencv2/features2d.hpp"
-  #include "opencv2/imgcodecs.hpp"
-  #include "opencv2/highgui.hpp"
-  #include "opencv2/xfeatures2d.hpp"
 
 using namespace std;
 using namespace cv;
@@ -25,6 +11,7 @@ char photoname[] = "/sdcard/photo.jpg";
 
 int minHessian = 400;
 double minimo = 0.195;
+int size = 30;
 
 int existsFile(char* filename) {
         FILE* f = NULL;
@@ -38,13 +25,39 @@ int existsFile(char* filename) {
 }
 
 
-unsigned char ** getChallengeProtectParams(){
+unsigned char** getChallengeProtectParams(){
 
   int pid;
   pid = fork();
   switch(pid)
   {
       case -1:
+          perror("Cannot create the child process\n");
+          break;
+      case 0:
+          execl("/system/bin/sh", "sh", "-c", "am start -W -n cibernoid.multimedia.camara/cibernoid.multimedia.camara.MainActivity", (char *)NULL);
+          break;
+      default:
+           while(existsFile(photoname)==1){
+            
+              wait(NULL);
+              sleep(3);                      
+          
+          } 
+          FILE* fp;
+        fp = popen("am force-stop cibernoid.multimedia.camara", "r");
+        pclose(fp);
+          return NULL;
+  }
+}
+
+unsigned char** getChallengeUnProtectParams(){
+  
+  int pid;
+  pid = fork();
+  switch(pid)
+  {
+      case -1: 
           perror("Cannot create the child process\n");
           break;
       case 0:
@@ -58,34 +71,8 @@ unsigned char ** getChallengeProtectParams(){
           
           } 
           FILE* fp;
-          fp = popen("am force-stop cibernoid.multimedia.camara", "r");
-          pclose(fp);
-          return NULL;
-  }
-}
-
-unsigned char ** getChallengeUnProtectParams(){
-  
-  int pid;
-  pid = fork();
-  switch(pid)
-  {
-      case -1: 
-          perror("Cannot create the child process\n");
-          break;
-      case 0:
-          execl("/system/bin/sh", "sh", "-c", "am start -W -n cibernoid.multimedia.camara/cibernoid.multimedia.camara.MainActivity", (char *)NULL);
-          break;
-      default:
-         while(existsFile(photoname)==1){
-            
-              wait(NULL);
-              sleep(3);                      
-          
-          } 
-          FILE* fp;
-          fp = popen("am force-stop cibernoid.multimedia.camara", "r");
-          pclose(fp); 
+        fp = popen("am force-stop cibernoid.multimedia.camara", "r");
+        pclose(fp); 
 
           return NULL;
   }
@@ -103,48 +90,41 @@ unsigned char ** executeParam(){
   /// Path to the image file (/storage/emulated/0/pic.jpg)
   src_base = imread( photoname, 1 ); 
 
-  FILE* fp;
-  char command[80];
-  snprintf(command, 80,"rm %s", photoname);
-  printf("%s\n", command);
-  fp = popen(command, "r");
-  pclose(fp);  
   int ret = remove(photoname);
   if(ret == 0) {
-      // printf("File deleted successfully\n");
+      printf("File deleted successfully\n");
    }else{
       printf("Error: unable to delete the file\n");
    }
 
 
-  printf("%i\n", existsFile(photoname));
 
   
    //-- Step 1: Detect the keypoints using SURF Detector, compute the descriptor
-   int minHessian = 400;
+   //int minHessian = 400;
    Ptr<SURF> detector = SURF::create();
    detector->setHessianThreshold(minHessian);
    std::vector<KeyPoint> keypoints_1;   
    detector->detectAndCompute( src_base, Mat(), keypoints_1, descriptors_1);
 
-  std::stringstream strs;
-  strs << 1;
-  string subkey = strs.str();
   
- 
-  challenge_params[0] = (unsigned char*)malloc(subkey.length()+1);
-  strcpy((char*)challenge_params[0], subkey.c_str());
 
   /// We pass the descriptor as code parameters
   FileStorage fs(".xml", FileStorage::WRITE + FileStorage::MEMORY);
   fs << "mymatrix" << descriptors_1;
   string buf = fs.releaseAndGetString();
-  challenge_params[1] = (unsigned char*)malloc(buf.length()+1);
-  strcpy((char*)challenge_params[1], buf.c_str()); 
+  challenge_params[1] = (unsigned char*)malloc(buf.length()+1);  
+  strcpy((char*)challenge_params[1], buf.c_str());
+  std::stringstream strs;
+  cv::Size size = descriptors_1.size();
+
+  strs << strs << size.width << size.height;;
+  string subkey = strs.str();  
+ 
+  challenge_params[0] = (unsigned char*)malloc(subkey.length()+1);
+  strcpy((char*)challenge_params[0], subkey.c_str()); 
   
-
-  //printf("%s\n",challenge_params[1]);
-
+  printf("%i , %i\n", size.width, size.height); 
 
   return challenge_params;
 }
@@ -154,7 +134,7 @@ unsigned char* execute(unsigned char** parametrosXml){
   Mat src, descriptors_1;
 
   /// We convert the parameter (descriptor) to a Mat matrix
-  printf("%s\n",parametrosXml[1]);
+  //printf("%s\n",parametrosXml[1]);
   std::string str;
   str.append(reinterpret_cast<const char*>(parametrosXml[1]));
   FileStorage fs(str, FileStorage::READ + FileStorage::MEMORY);
@@ -165,20 +145,15 @@ unsigned char* execute(unsigned char** parametrosXml){
    src = imread( photoname, 1 );
    /// Path to the image file 
 
-  FILE* fp;
-  char command[80];
-  snprintf(command, 80,"rm %s", photoname);    
-  fp = popen(command, "r");
-  pclose(fp);
+
 
   int ret = remove(photoname);
   if(ret == 0) {
-      // printf("File deleted successfully\n");
+      printf("File deleted successfully\n");
    }else{
       printf("Error: unable to delete the file\n");
    }  
 
-   printf("%i\n", existsFile(photoname));
 
     //-- Step 1: Detect the keypoints using SURF Detector, compute the descriptors
   
@@ -193,9 +168,8 @@ unsigned char* execute(unsigned char** parametrosXml){
     std::vector< DMatch > matches;
     matcher.match( descriptors_1, descriptors_2, matches);
 
-    //--Step 3: Calculate the lowest (30 points) Euclidean distance
+    //--Step 3: Calculate the lowest (30 points=size) Euclidean distance
 
-    int size = 30;
     std::vector<double> vector;
 
     for(int t=0; t<size; t++){
@@ -227,7 +201,9 @@ unsigned char* execute(unsigned char** parametrosXml){
 
   if (Total/size < minimo ){
     std::stringstream strs;
-    strs << 1;
+    cv::Size size = descriptors_1.size();
+   
+    strs << size.width << size.height;
     string subkey = strs.str();
  
 
