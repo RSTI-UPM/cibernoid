@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# PATH=/home/mercurio/Documentos/android_compilar/my-android-toolchain/bin:$PATH
-#export CXX=i686-linux-android-gcc
-export PATH=/home/dell/Documentos/android_compilar/my-android-toolchain/bin:$PATH
+#Cambiar PATH al path del NDK
+export PATH=/home/user/Documentos/android_compilar/my-android-toolchain/bin:$PATH
 export CXX=arm-linux-androideabi-gcc
 
 $CXX -fPIC -c -o pruebas_SO.o qrAnChallenge.c																																										

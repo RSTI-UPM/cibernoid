@@ -41,12 +41,12 @@ PUCHAR* getChallengeProtectParams(){
           } 
 
             FILE *fp;
-            char buff[30];
+            char buff[200];
             int ret;
 
             /// Read the file with the string and close it
             fp = fopen(filename, "r");
-            fgets(buff, 30, (FILE*)fp);
+            fgets(buff, 200, (FILE*)fp);
             fclose(fp);
             ret = remove(filename);
 
@@ -84,12 +84,12 @@ PUCHAR* getChallengeUnProtectParams(){
           } 
 
             FILE *fp;
-            char buff[30];
+            char buff[200];
             int ret;
 
             /// Read the file with the string and close it
             fp = fopen(filename, "r");
-            fgets(buff, 30, (FILE*)fp);
+            fgets(buff, 200, (FILE*)fp);
             fclose(fp);
             ret = remove(filename);
 

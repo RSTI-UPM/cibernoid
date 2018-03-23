@@ -1,6 +1,7 @@
 #!/bin/bash
 
-export PATH=/home/dell/Documentos/android_compilar/my-android-toolchain_gcc/bin:$PATH
+#Cambiar PATH al path del NDK
+export PATH=/home/user/Documentos/android_compilar/my-android-toolchain_gcc/bin:$PATH
 export CXX=arm-linux-androideabi-g++ 
 
 $CXX -fPIC -c -o pruebas_SO.o apiAnChallenge.cpp -std=c++11 
